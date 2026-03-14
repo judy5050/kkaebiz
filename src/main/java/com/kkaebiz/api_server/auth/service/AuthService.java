@@ -20,8 +20,8 @@ public class AuthService {
 
         // DB 없으니 일단 kakaoId를 subject로 사용 (나중에 DB PK로 바꾸면 됨)
         String access = jwtService.createAccessToken(kakaoId);
-        String refresh = jwtService.createRefreshToken(kakaoId);
+//        String refresh = jwtService.createRefreshToken(kakaoId);
 
-        return new LoginResponse(access, refresh, kakaoId);
+        return new LoginResponse(access, kakaoId);
     }
 }
