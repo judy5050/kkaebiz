@@ -29,6 +29,9 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(length = 10, name = "nick_name")
+    private String nickName;
+
     protected User() {}
 
     private User(Provider provider, String providerUserId) {
@@ -45,4 +48,8 @@ public class User {
     public Provider getProvider() { return provider; }
     public String getProviderUserId() { return providerUserId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 }
