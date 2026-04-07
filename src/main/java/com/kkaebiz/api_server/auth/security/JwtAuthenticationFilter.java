@@ -34,11 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                // ✅ 너 JwtService에 아래 메서드들 추가/구현 필요(아래 제공)
                 long userId = jwtService.parseAndValidateAccessToken(token);
 
                 var auth = new UsernamePasswordAuthenticationToken(
-                        userId,  // principal
+                        userId,
                         null,
                         List.of()
                 );
