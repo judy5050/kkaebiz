@@ -17,9 +17,8 @@ public class SocialLoginService {
     }
 
     @Transactional
-    public long findOrCreateUserId(Provider provider, String providerUserId) {
+    public User findOrCreateUserId(Provider provider, String providerUserId) {
         return userRepository.findByProviderAndProviderUserId(provider, providerUserId)
-                .map(User::getId)
                 .orElseGet(() -> createSafely(provider, providerUserId));
     }
 
@@ -27,14 +26,12 @@ public class SocialLoginService {
      * 동시 로그인(경합)으로 같은 provider/providerUserId가 동시에 insert될 수 있어서
      * 유니크 제약 + 예외 처리로 안전하게 한 번 더 조회한다.
      */
-    private long createSafely(Provider provider, String providerUserId) {
+    private User createSafely(Provider provider, String providerUserId) {
         try {
-            User saved = userRepository.saveAndFlush(User.of(provider, providerUserId));
-            return saved.getId();
+            return userRepository.saveAndFlush(User.of(provider, providerUserId));
         } catch (DataIntegrityViolationException e) {
             // 누군가 먼저 생성한 경우일 수 있으니 재조회
             return userRepository.findByProviderAndProviderUserId(provider, providerUserId)
-                    .map(User::getId)
                     .orElseThrow(() -> e);
         }
     }

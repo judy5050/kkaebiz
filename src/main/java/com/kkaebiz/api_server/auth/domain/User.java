@@ -49,6 +49,10 @@ public class User {
     public String getProviderUserId() { return providerUserId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
+    public String getNickName() {
+        return nickName;
+    }
+
     public void setNickName(String nickName) {
         this.nickName = nickName;
     }

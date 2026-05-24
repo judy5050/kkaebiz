@@ -1,5 +1,6 @@
 package com.kkaebiz.api_server.auth.service;
 
+import com.kkaebiz.api_server.auth.domain.User;
 import com.kkaebiz.api_server.auth.dto.LoginResponse;
 import com.kkaebiz.api_server.auth.dto.Provider;
 import com.kkaebiz.api_server.auth.dto.SocialLoginRequest;
@@ -27,7 +28,7 @@ public class AuthFacadeService {
 
     public LoginResponse socialLogin(SocialLoginRequest req) {
 
-        long userId = switch (req.provider()) {
+        User user = switch (req.provider()) {
             case KAKAO -> {
                 long kakaoId = kakaoApiClient.getKakaoId(req.token());
                 yield socialLoginService.findOrCreateUserId(
@@ -42,9 +43,9 @@ public class AuthFacadeService {
             }
         };
 
-        String access = jwtService.createAccessToken(userId);
+        String access = jwtService.createAccessToken(user.getId());
 //        String refresh = jwtService.createRefreshToken(userId);
-        return new LoginResponse(access, userId);
+        return new LoginResponse(access, user.getId(), user.getNickName());
     }
 
     private static void requireAuthCode(String authorizationCode) {
