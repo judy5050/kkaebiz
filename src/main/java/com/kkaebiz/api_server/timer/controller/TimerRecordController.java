@@ -1,6 +1,5 @@
 package com.kkaebiz.api_server.timer.controller;
 
-import com.kkaebiz.api_server.timer.dto.TimerRecordItem;
 import com.kkaebiz.api_server.timer.dto.TimerRecordSaveRequest;
 import com.kkaebiz.api_server.timer.dto.TimerRecordSaveResponse;
 import com.kkaebiz.api_server.timer.service.TimerRecordService;
