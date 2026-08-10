@@ -1,6 +1,5 @@
 package com.kkaebiz.api_server.timer.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
@@ -22,7 +21,9 @@ public record TimerRecordItem(
 
         ConcentrateType concentrateType,
 
-        @NotBlank
-        LocalDateTime playAt
+        @NotNull
+        LocalDateTime playAt,
+
+        Integer restLevel
 ) {
 }

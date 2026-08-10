@@ -3,7 +3,6 @@ package com.kkaebiz.api_server.timer.service;
 import com.kkaebiz.api_server.timer.domain.TimerRecord;
 import com.kkaebiz.api_server.timer.dto.TimerRecordItem;
 import com.kkaebiz.api_server.timer.dto.TimerRecordSaveRequest;
-import com.kkaebiz.api_server.timer.dto.TimerRecordSaveResponse;
 import com.kkaebiz.api_server.timer.repository.TimerRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,7 @@ public class TimerRecordService {
 
     private final TimerRecordRepository timerRecordRepository;
 
-    public TimerRecordSaveResponse save(Long userId, TimerRecordSaveRequest requests) {
+    public void save(Long userId, TimerRecordSaveRequest requests) {
 
         for (TimerRecordItem request : requests.records()) {
             validate(userId,request);
@@ -27,19 +26,17 @@ public class TimerRecordService {
                     .gaebiz(request.gaebiz())
                     .timeSeconds(request.time())
                     .mode(request.mode())
-                    .concentrateType(request.concentrateType().name())
+                    .concentrateType(request.concentrateType() == null
+                            ? null
+                            : request.concentrateType().name())
                     .playAt(request.playAt())
-                    .restLevel(0)
+                    .restLevel(resolveRestLevel(request))
                     .build();
 
             timerRecordRepository.save(timerRecord);
         }
 
 
-        return TimerRecordSaveResponse.builder()
-                .restLevel(0)
-                .resultMsg("타이머 저장에 성공했습니다.")
-                .build();
     }
 
     private void validate(Long userId, TimerRecordItem request) {
@@ -59,18 +56,13 @@ public class TimerRecordService {
                 && request.concentrateType() == null) {
             throw new IllegalArgumentException("집중모드일 경우 concentrateType은 필수입니다.");
         }
+
+        if ("REST".equals(request.mode()) && request.restLevel() == null) {
+            throw new IllegalArgumentException("휴식모드일 경우 restLevel은 필수입니다.");
+        }
     }
 
-    private Integer calculateRestLevel(TimerRecordItem request) {
-        if (!"REST".equals(request.mode())) {
-            return null;
-        }
-
-        long minutes = request.time() / 60;
-
-        if (minutes < 5) return 1;
-        if (minutes < 15) return 2;
-        if (minutes < 30) return 3;
-        return 4;
+    private Integer resolveRestLevel(TimerRecordItem request) {
+        return "REST".equals(request.mode()) ? request.restLevel() : 0;
     }
 }
