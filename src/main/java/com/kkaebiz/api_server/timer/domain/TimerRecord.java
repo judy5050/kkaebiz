@@ -18,21 +18,28 @@ public class TimerRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(nullable = false, length = 20)
     private String gaebiz;
 
-    @Column(name = "time_seconds")
+    @Column(name = "time_seconds", nullable = false)
     private Long timeSeconds;
 
+    @Column(nullable = false, length = 20)
     private String mode;
 
+    @Column(name = "concentrate_type", length = 20)
     private String concentrateType;
 
+    @Column(name = "play_at", nullable = false)
     private LocalDateTime playAt;
 
+    @Column(name = "rest_level", nullable = false)
     private Integer restLevel;
 
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Builder
