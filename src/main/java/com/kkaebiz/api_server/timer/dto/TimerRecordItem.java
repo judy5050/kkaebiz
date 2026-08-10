@@ -1,5 +1,6 @@
 package com.kkaebiz.api_server.timer.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public record TimerRecordItem(
 
         ConcentrateType concentrateType,
 
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         @NotNull
         LocalDateTime playAt,
 
