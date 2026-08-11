@@ -2,6 +2,7 @@ package com.kkaebiz.api_server.timer.controller;
 
 import com.kkaebiz.api_server.common.ApiResult;
 import com.kkaebiz.api_server.timer.dto.TimerRecordSaveRequest;
+import com.kkaebiz.api_server.timer.dto.TimerRecordTimeListResponse;
 import com.kkaebiz.api_server.timer.service.TimerRecordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class TimerRecordController {
 
     private final TimerRecordService timerRecordService;
+
+    @GetMapping("/records")
+    public TimerRecordTimeListResponse getTimerRecords(@AuthenticationPrincipal Long userId) {
+        return timerRecordService.getTimeRecords(userId);
+    }
 
     @PostMapping("/records")
     public ApiResult<Void> saveTimerRecords(@AuthenticationPrincipal Long userId, @RequestBody @Valid TimerRecordSaveRequest request
