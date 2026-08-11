@@ -1,6 +1,8 @@
 package com.kkaebiz.api_server.statistics;
 
 import com.kkaebiz.api_server.common.ApiResult;
+import com.kkaebiz.api_server.statistics.dto.CharacterSelectionCountItem;
+import com.kkaebiz.api_server.statistics.dto.CharacterSelectionCountResponse;
 import com.kkaebiz.api_server.statistics.dto.StatisticsCardResult;
 import com.kkaebiz.api_server.statistics.service.StatisticsService;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,23 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class StatisticsControllerTest {
+
+    @Test
+    void returnsCharacterSelectionCountUsingCommonApiResult() {
+        StatisticsService service = mock(StatisticsService.class);
+        StatisticsController controller = new StatisticsController(service);
+        CharacterSelectionCountResponse selectionCount = new CharacterSelectionCountResponse(
+                java.util.List.of(new CharacterSelectionCountItem("KIKI", 10L))
+        );
+        when(service.getSelectionCount(1L)).thenReturn(selectionCount);
+
+        ApiResult<CharacterSelectionCountResponse> response = controller.getSelectionCount(1L);
+
+        verify(service).getSelectionCount(1L);
+        assertThat(response.success()).isTrue();
+        assertThat(response.message()).isEqualTo("캐릭터 선택 횟수 조회에 성공했습니다.");
+        assertThat(response.data()).isEqualTo(selectionCount);
+    }
 
     @Test
     void returnsCardResultUsingCommonApiResult() {

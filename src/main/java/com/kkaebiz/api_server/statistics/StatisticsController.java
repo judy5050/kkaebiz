@@ -18,9 +18,11 @@ public class StatisticsController {
     private final StatisticsService service;
 
     @GetMapping("/character-selection-count")
-    public CharacterSelectionCountResponse getSelectionCount(@AuthenticationPrincipal Long userId
+    public ApiResult<CharacterSelectionCountResponse> getSelectionCount(
+            @AuthenticationPrincipal Long userId
     ) {
-        return service.getSelectionCount(userId);
+        CharacterSelectionCountResponse result = service.getSelectionCount(userId);
+        return new ApiResult<>(true, "캐릭터 선택 횟수 조회에 성공했습니다.", result);
     }
 
     @GetMapping("/card")
