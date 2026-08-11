@@ -2,7 +2,6 @@ package com.kkaebiz.api_server.statistics.service;
 
 import com.kkaebiz.api_server.statistics.dto.CharacterSelectionCountItem;
 import com.kkaebiz.api_server.statistics.dto.CharacterSelectionCountResponse;
-import com.kkaebiz.api_server.statistics.dto.StatisticsCardResponse;
 import com.kkaebiz.api_server.statistics.dto.StatisticsCardResult;
 import com.kkaebiz.api_server.timer.repository.TimerRecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,7 @@ public class StatisticsService {
 
     }
 
-    public StatisticsCardResponse getCardArea(Long userId) {
+    public StatisticsCardResult getCardArea(Long userId) {
         LocalDate today = LocalDate.now();
         LocalDate monthStartDate = YearMonth.from(today).atDay(1);
 
@@ -78,11 +77,9 @@ public class StatisticsService {
             );
         }
 
-        return new StatisticsCardResponse(
-                new StatisticsCardResult(
-                        streakDays,
-                        streakDays >= 1 ? null : (lastAttendanceDate != null ? lastAttendanceDate.toString() : null)
-                )
+        return new StatisticsCardResult(
+                streakDays,
+                streakDays >= 1 ? null : (lastAttendanceDate != null ? lastAttendanceDate.toString() : null)
         );
     }
 
