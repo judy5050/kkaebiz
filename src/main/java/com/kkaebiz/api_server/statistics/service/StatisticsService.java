@@ -3,6 +3,9 @@ package com.kkaebiz.api_server.statistics.service;
 import com.kkaebiz.api_server.statistics.dto.CharacterSelectionCountItem;
 import com.kkaebiz.api_server.statistics.dto.CharacterSelectionCountResponse;
 import com.kkaebiz.api_server.statistics.dto.StatisticsCardResult;
+import com.kkaebiz.api_server.statistics.dto.ConcentrationCalendarMonthResult;
+import com.kkaebiz.api_server.statistics.dto.ConcentrationDailySummary;
+import com.kkaebiz.api_server.statistics.dto.ConcentrationPlayRecord;
 import com.kkaebiz.api_server.timer.repository.TimerRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,6 +24,38 @@ import java.util.stream.Collectors;
 public class StatisticsService {
 
     private final TimerRecordRepository timerRecordRepository;
+
+    public List<ConcentrationCalendarMonthResult> getConcentrationCalendar(
+            Long userId,
+            String requestedYearMonth
+    ) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId는 필수입니다.");
+        }
+
+        YearMonth centerMonth = parseYearMonth(requestedYearMonth);
+        YearMonth firstMonth = centerMonth.minusMonths(1);
+        YearMonth lastMonth = centerMonth.plusMonths(1);
+
+        List<ConcentrationDailySummary> summaries =
+                timerRecordRepository.findConcentrationDailySummaries(
+                        userId,
+                        firstMonth.atDay(1).atStartOfDay(),
+                        lastMonth.plusMonths(1).atDay(1).atStartOfDay()
+                );
+
+        Map<LocalDate, Long> timeByDate = summaries.stream()
+                .collect(Collectors.toMap(
+                        ConcentrationDailySummary::getPlayDate,
+                        ConcentrationDailySummary::getTotalTime
+                ));
+
+        return List.of(
+                calendarMonth(firstMonth, timeByDate),
+                calendarMonth(centerMonth, timeByDate),
+                calendarMonth(lastMonth, timeByDate)
+        );
+    }
 
     public CharacterSelectionCountResponse getSelectionCount(Long userId) {
 
@@ -111,5 +147,42 @@ public class StatisticsService {
         }
 
         return streakDays;
+    }
+
+    private YearMonth parseYearMonth(String value) {
+        if (value == null || !value.matches("\\d{4}-(0[1-9]|1[0-2])")) {
+            throw new IllegalArgumentException("yearMonth는 yyyy-MM 형식이어야 합니다.");
+        }
+
+        try {
+            return YearMonth.parse(value);
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("유효하지 않은 yearMonth입니다.");
+        }
+    }
+
+    private ConcentrationCalendarMonthResult calendarMonth(
+            YearMonth yearMonth,
+            Map<LocalDate, Long> timeByDate
+    ) {
+        List<Boolean> dayRecord = new ArrayList<>(yearMonth.lengthOfMonth());
+        LocalDate feverDay = null;
+        long maximumTime = 0L;
+
+        for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
+            LocalDate date = yearMonth.atDay(day);
+            long totalTime = timeByDate.getOrDefault(date, 0L);
+            dayRecord.add(totalTime > 0L);
+
+            if (totalTime > maximumTime) {
+                maximumTime = totalTime;
+                feverDay = date;
+            }
+        }
+
+        return new ConcentrationCalendarMonthResult(
+                new ConcentrationPlayRecord(yearMonth.toString(), dayRecord),
+                feverDay == null ? null : feverDay.toString()
+        );
     }
 }

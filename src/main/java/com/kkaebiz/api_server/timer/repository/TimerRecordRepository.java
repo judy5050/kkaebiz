@@ -1,6 +1,7 @@
 package com.kkaebiz.api_server.timer.repository;
 
 import com.kkaebiz.api_server.statistics.dto.CharacterSelectionCountItem;
+import com.kkaebiz.api_server.statistics.dto.ConcentrationDailySummary;
 import com.kkaebiz.api_server.timer.domain.TimerRecord;
 import com.kkaebiz.api_server.timer.dto.TimerRecordPeriodSummary;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TimerRecordRepository extends JpaRepository<TimerRecord, Long> {
+
+    @Query(value = """
+    SELECT DATE(PLAY_AT) AS playDate,
+           SUM(TIME_SECONDS) AS totalTime
+    FROM TIMER_RECORD
+    WHERE USER_ID = :userId
+      AND MODE = 'CONCENTRATE'
+      AND PLAY_AT >= :startDateTime
+      AND PLAY_AT < :endDateTime
+    GROUP BY DATE(PLAY_AT)
+    ORDER BY playDate
+""", nativeQuery = true)
+    List<ConcentrationDailySummary> findConcentrationDailySummaries(
+            @Param("userId") Long userId,
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
+    );
 
     @Query("""
     SELECT new com.kkaebiz.api_server.timer.dto.TimerRecordPeriodSummary(
